@@ -72,15 +72,19 @@ pub struct LASheader {
     offset: Vec<f64>,
     #[pyo3(get)]
     bounds: Vec<f64>,
+    #[pyo3(get)]
+    point_format: u8,
 }
 
+/// a LASdataset is bla bla bla
 #[pyclass(unsendable)]
-struct LASdataset {
+pub struct LASdataset {
     r: las::Reader,
 }
 
 #[pymethods]
 impl LASdataset {
+    /// this is my header, yo
     #[getter]
     fn header(&self) -> PyResult<LASheader> {
         let strv = format!(
@@ -92,6 +96,7 @@ impl LASdataset {
             number_of_points: self.r.header().number_of_points(),
             version: strv,
             system_identifier: self.r.header().system_identifier().to_string(),
+            point_format: self.r.header().point_format().to_u8().unwrap(),
             scale: vec![
                 self.r.header().transforms().x.scale,
                 self.r.header().transforms().y.scale,
@@ -152,10 +157,22 @@ impl PyIterProtocol for LASdataset {
 #[pyproto]
 impl PyObjectProtocol for LASdataset {
     fn __str__(&self) -> PyResult<String> {
-        Ok(format!(""))
+        Ok(format!(
+            "v{}.{}; {} points, PointFormat({})",
+            self.r.header().version().major,
+            self.r.header().version().minor,
+            self.r.header().number_of_points(),
+            self.r.header().point_format().to_u8().unwrap()
+        ))
     }
     fn __repr__(&self) -> PyResult<String> {
-        Ok(format!("Dataset hugo repr"))
+        Ok(format!(
+            "v{}.{}; {} points, PointFormat({})",
+            self.r.header().version().major,
+            self.r.header().version().minor,
+            self.r.header().number_of_points(),
+            self.r.header().point_format().to_u8().unwrap()
+        ))
     }
 }
 
