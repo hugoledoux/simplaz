@@ -24,7 +24,7 @@ pub struct LASpoint {
     #[pyo3(get)]
     number_of_returns: u8,
     // #[pyo3(get)]
-    // scan_direction: ScanDirection,
+    // scan_direction: ScanDirection, TODO
     #[pyo3(get)]
     is_edge_of_flight_line: bool,
     #[pyo3(get)]
@@ -47,6 +47,16 @@ pub struct LASpoint {
     point_source_id: u16,
 }
 
+#[pyproto]
+impl PyObjectProtocol for LASpoint {
+    fn __str__(&self) -> PyResult<String> {
+        Ok(format!("({}, {}, {})", self.x, self.y, self.z))
+    }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok(format!("({}, {}, {})", self.x, self.y, self.z))
+    }
+}
+
 #[pyclass(unsendable)]
 #[derive(Clone)]
 pub struct LASheader {
@@ -54,63 +64,54 @@ pub struct LASheader {
     number_of_points: u64,
     #[pyo3(get)]
     version: String,
+    #[pyo3(get)]
+    system_identifier: String,
+    #[pyo3(get)]
+    scale: Vec<f64>,
+    #[pyo3(get)]
+    offset: Vec<f64>,
+    #[pyo3(get)]
+    bounds: Vec<f64>,
 }
 
 #[pyclass(unsendable)]
 struct LASdataset {
     r: las::Reader,
-    count: usize,
 }
 
 #[pymethods]
 impl LASdataset {
-    fn number_of_points(&self) -> PyResult<u64> {
-        Ok(self.r.header().number_of_points())
-    }
-    fn version(&self) -> PyResult<String> {
+    #[getter]
+    fn header(&self) -> PyResult<LASheader> {
         let strv = format!(
             "{}.{}",
             self.r.header().version().major,
             self.r.header().version().minor
         );
-        Ok(strv)
-    }
-    #[getter]
-    fn header(&self) -> PyResult<LASheader> {
         let h = LASheader {
             number_of_points: self.r.header().number_of_points(),
-            version: "1.4".to_string(),
+            version: strv,
+            system_identifier: self.r.header().system_identifier().to_string(),
+            scale: vec![
+                self.r.header().transforms().x.scale,
+                self.r.header().transforms().y.scale,
+                self.r.header().transforms().z.scale,
+            ],
+            offset: vec![
+                self.r.header().transforms().x.offset,
+                self.r.header().transforms().y.offset,
+                self.r.header().transforms().z.offset,
+            ],
+            bounds: vec![
+                self.r.header().bounds().min.x,
+                self.r.header().bounds().min.y,
+                self.r.header().bounds().min.z,
+                self.r.header().bounds().max.x,
+                self.r.header().bounds().max.y,
+                self.r.header().bounds().max.z,
+            ],
         };
         Ok(h)
-    }
-    fn next_point(&mut self) -> PyResult<LASpoint> {
-        let re = self.r.read();
-        if re.is_none() {
-            return Err(PyErr::new::<exceptions::IOError, _>(
-                "Invalid path for LAS/LAZ file.",
-            ));
-        }
-        let p = re.unwrap().unwrap();
-        let p2 = LASpoint {
-            x: p.x,
-            y: p.y,
-            z: p.z,
-            intensity: p.intensity,
-            return_number: p.return_number,
-            number_of_returns: p.number_of_returns,
-            // scan_direction: p.scan_direction,
-            is_edge_of_flight_line: p.is_edge_of_flight_line,
-            classification: u8::from(p.classification),
-            is_synthetic: p.is_synthetic,
-            is_key_point: p.is_key_point,
-            is_withheld: p.is_withheld,
-            is_overlap: p.is_overlap,
-            scanner_channel: p.scanner_channel,
-            scan_angle: p.scan_angle,
-            user_data: p.user_data,
-            point_source_id: p.point_source_id,
-        };
-        Ok(p2)
     }
 }
 
@@ -143,15 +144,15 @@ impl PyIterProtocol for LASdataset {
         };
         IterNextOutput::Yield(p2)
     }
-    // fn __iter__(mut slf: PyRefMut<Self>) -> PyResult<Self> {
-    //     Ok(slf)
-    // }
+    fn __iter__(slf: PyRefMut<Self>) -> Py<LASdataset> {
+        slf.into()
+    }
 }
 
 #[pyproto]
 impl PyObjectProtocol for LASdataset {
     fn __str__(&self) -> PyResult<String> {
-        Ok(format!("Dataset hugo str"))
+        Ok(format!(""))
     }
     fn __repr__(&self) -> PyResult<String> {
         Ok(format!("Dataset hugo repr"))
@@ -168,7 +169,7 @@ fn read_file(path: String) -> PyResult<LASdataset> {
         ));
     }
     let ds = re.unwrap();
-    Ok(LASdataset { r: ds, count: 0 })
+    Ok(LASdataset { r: ds })
 }
 
 #[pymodule]
