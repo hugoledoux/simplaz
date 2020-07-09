@@ -5,9 +5,33 @@ use pyo3::wrap_pyfunction;
 extern crate las;
 use crate::las::Read;
 
+/// A LAS point
+#[pyclass(unsendable)]
+pub struct LASpoint {
+    #[pyo3(get)]
+    x: f64,
+    #[pyo3(get)]
+    y: f64,
+    #[pyo3(get)]
+    z: f64,
+    #[pyo3(get)]
+    intensity: u16,
+}
+
+#[pyclass(unsendable)]
+#[derive(Clone)]
+pub struct LASheader {
+    #[pyo3(get)]
+    number_of_points: u64,
+    #[pyo3(get)]
+    version: String,
+}
+
 #[pyclass(unsendable)]
 struct LASdataset {
     r: las::Reader,
+    #[pyo3(get)]
+    header: LASheader,
 }
 
 #[pymethods]
@@ -23,19 +47,17 @@ impl LASdataset {
         );
         Ok(strv)
     }
-    fn read(&mut self) -> PyResult<f64> {
+    fn read(&mut self) -> PyResult<LASpoint> {
         let p = self.r.read().unwrap().unwrap();
-        Ok(p.x)
+        let p2 = LASpoint {
+            x: p.x,
+            y: p.y,
+            z: p.z,
+            intensity: p.intensity,
+        };
+        Ok(p2)
     }
 }
-
-// #[pyclass(unsendable)]
-// struct LASheader {
-//     #[pyo3(get)]
-//     bounds: u32,
-//     #[pyo3(get)]
-//     count: usize,
-// }
 
 /// testing
 #[pyfunction]
@@ -46,15 +68,19 @@ fn read_file(path: String) -> PyResult<LASdataset> {
             "Invalid path for LAS/LAZ file.",
         ));
     }
-    let tmp = LASdataset { r: re.unwrap() };
+    let ds = re.unwrap();
+    let h = LASheader {
+        number_of_points: ds.header().number_of_points(),
+        version: "1.4".to_string(),
+    };
+    let tmp = LASdataset { r: ds, header: h };
     Ok(tmp)
 }
 
 #[pymodule]
 fn simplaz(_py: Python, m: &PyModule) -> PyResult<()> {
-    // m.add_wrapped(wrap_pyfunction!(double)).unwrap();
-    // m.add_wrapped(wrap_pyfunction!(read_test)).unwrap();
-    // m.add_wrapped(wrap_pyfunction!(read_las1)).unwrap();
+    m.add_class::<LASdataset>()?;
+    m.add_class::<LASpoint>()?;
     m.add_wrapped(wrap_pyfunction!(read_file)).unwrap();
     Ok(())
 }
