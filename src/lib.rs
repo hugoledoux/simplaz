@@ -116,16 +116,35 @@ impl LASdataset {
 
 #[pyproto]
 impl PyIterProtocol for LASdataset {
-    fn __next__(mut slf: PyRefMut<Self>) -> IterNextOutput<usize, &'static str> {
-        if slf.count < 5 {
-            slf.count += 1;
-            IterNextOutput::Yield(slf.count)
-        } else {
-            IterNextOutput::Return("Ended")
+    fn __next__(mut slf: PyRefMut<Self>) -> IterNextOutput<LASpoint, &'static str> {
+        let re = slf.r.read();
+        if re.is_none() {
+            return IterNextOutput::Return("Ended");
         }
+        let p = re.unwrap().unwrap();
+        let p2 = LASpoint {
+            x: p.x,
+            y: p.y,
+            z: p.z,
+            intensity: p.intensity,
+            return_number: p.return_number,
+            number_of_returns: p.number_of_returns,
+            // scan_direction: p.scan_direction,
+            is_edge_of_flight_line: p.is_edge_of_flight_line,
+            classification: u8::from(p.classification),
+            is_synthetic: p.is_synthetic,
+            is_key_point: p.is_key_point,
+            is_withheld: p.is_withheld,
+            is_overlap: p.is_overlap,
+            scanner_channel: p.scanner_channel,
+            scan_angle: p.scan_angle,
+            user_data: p.user_data,
+            point_source_id: p.point_source_id,
+        };
+        IterNextOutput::Yield(p2)
     }
-    // fn __iter__(mut slf: PyRefMut<Self>) -> Self {
-    //     self
+    // fn __iter__(mut slf: PyRefMut<Self>) -> PyResult<Self> {
+    //     Ok(slf)
     // }
 }
 
