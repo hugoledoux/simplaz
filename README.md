@@ -11,6 +11,24 @@ Basically it's a wrapper around [Rust las](https://docs.rs/las) and it exposes t
 Only reading at this moment, writing is for later.
 
 
+Installation
+============
+
+pip
+---
+
+To install the latest release: `pip install simplaz`
+
+
+Development
+-----------
+
+  1. install [Rust](https://www.rust-lang.org/) (v1.39+)
+  2. install [maturin](https://github.com/PyO3/maturin) 
+  3. `maturin development`
+  4. move to another folder, and `import simplaz` shouldn't return any error
+
+
 Example
 =======
 
