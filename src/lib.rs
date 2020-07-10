@@ -8,9 +8,9 @@ use pyo3::PyObjectProtocol;
 extern crate las;
 use crate::las::Read;
 
-/// A LAS point
+/// A LAZ/LAS point
 #[pyclass(unsendable)]
-pub struct LASpoint {
+struct LazPoint {
     #[pyo3(get)]
     x: f64,
     #[pyo3(get)]
@@ -48,7 +48,7 @@ pub struct LASpoint {
 }
 
 #[pyproto]
-impl PyObjectProtocol for LASpoint {
+impl PyObjectProtocol for LazPoint {
     fn __str__(&self) -> PyResult<String> {
         Ok(format!("({}, {}, {})", self.x, self.y, self.z))
     }
@@ -59,7 +59,7 @@ impl PyObjectProtocol for LASpoint {
 
 #[pyclass(unsendable)]
 #[derive(Clone)]
-pub struct LASheader {
+struct LazHeader {
     #[pyo3(get)]
     number_of_points: u64,
     #[pyo3(get)]
@@ -76,23 +76,23 @@ pub struct LASheader {
     point_format: u8,
 }
 
-/// a LASdataset is bla bla bla
+/// a LazDataset is bla bla bla
 #[pyclass(unsendable)]
-pub struct LASdataset {
+struct LazDataset {
     r: las::Reader,
 }
 
 #[pymethods]
-impl LASdataset {
+impl LazDataset {
     /// this is my header, yo
     #[getter]
-    fn header(&self) -> PyResult<LASheader> {
+    fn header(&self) -> PyResult<LazHeader> {
         let strv = format!(
             "{}.{}",
             self.r.header().version().major,
             self.r.header().version().minor
         );
-        let h = LASheader {
+        let h = LazHeader {
             number_of_points: self.r.header().number_of_points(),
             version: strv,
             system_identifier: self.r.header().system_identifier().to_string(),
@@ -121,14 +121,14 @@ impl LASdataset {
 }
 
 #[pyproto]
-impl PyIterProtocol for LASdataset {
-    fn __next__(mut slf: PyRefMut<Self>) -> IterNextOutput<LASpoint, &'static str> {
+impl PyIterProtocol for LazDataset {
+    fn __next__(mut slf: PyRefMut<Self>) -> IterNextOutput<LazPoint, &'static str> {
         let re = slf.r.read();
         if re.is_none() {
             return IterNextOutput::Return("Ended");
         }
         let p = re.unwrap().unwrap();
-        let p2 = LASpoint {
+        let p2 = LazPoint {
             x: p.x,
             y: p.y,
             z: p.z,
@@ -149,13 +149,13 @@ impl PyIterProtocol for LASdataset {
         };
         IterNextOutput::Yield(p2)
     }
-    fn __iter__(slf: PyRefMut<Self>) -> Py<LASdataset> {
+    fn __iter__(slf: PyRefMut<Self>) -> Py<LazDataset> {
         slf.into()
     }
 }
 
 #[pyproto]
-impl PyObjectProtocol for LASdataset {
+impl PyObjectProtocol for LazDataset {
     fn __str__(&self) -> PyResult<String> {
         Ok(format!(
             "v{}.{}; {} points, PointFormat({})",
@@ -176,9 +176,9 @@ impl PyObjectProtocol for LASdataset {
     }
 }
 
-/// testing
+/// Read a LAZ/LAS file and return a LazDataset object
 #[pyfunction]
-fn read_file(path: String) -> PyResult<LASdataset> {
+fn read_file(path: String) -> PyResult<LazDataset> {
     let re = las::Reader::from_path(path);
     if re.is_err() {
         return Err(PyErr::new::<exceptions::IOError, _>(
@@ -186,14 +186,14 @@ fn read_file(path: String) -> PyResult<LASdataset> {
         ));
     }
     let ds = re.unwrap();
-    Ok(LASdataset { r: ds })
+    Ok(LazDataset { r: ds })
 }
 
 #[pymodule]
 fn simplaz(_py: Python, m: &PyModule) -> PyResult<()> {
-    m.add_class::<LASdataset>()?;
-    m.add_class::<LASpoint>()?;
-    m.add_class::<LASheader>()?;
+    // m.add_class::<LazDataset>()?;
+    // m.add_class::<LazPoint>()?;
+    // m.add_class::<LazHeader>()?;
     m.add_wrapped(wrap_pyfunction!(read_file)).unwrap();
     Ok(())
 }
