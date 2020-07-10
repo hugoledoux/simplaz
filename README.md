@@ -1,4 +1,7 @@
 
+
+[![GitHub license](https://img.shields.io/github/license/hugoledoux/simplaz)](https://github.com/hugoledoux/simplaz/blob/master/LICENSE) [![PyPI version](https://badge.fury.io/py/simplaz.svg)](https://pypi.org/project/simplaz/)
+
 simplaz
 =======
 
