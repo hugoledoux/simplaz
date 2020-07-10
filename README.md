@@ -3,7 +3,7 @@ simplaz
 =======
 
 A simple Python package to read LAZ files (LAS too).
-Basically it's a wrapper around `Rust las <https://docs.rs/las>`_ and it exposes the most useful methods.
+Basically it's a wrapper around [Rust las](https://docs.rs/las) and it exposes the most useful methods.
 
 Only reading at this moment, writing is for later.
 
