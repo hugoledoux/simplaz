@@ -3,10 +3,10 @@ name    = "simplaz"
 version = "0.1.0"
 authors = ["Hugo Ledoux <h.ledoux@tudelft.nl>"]
 license = "MIT"
-# homepage="https://github.com/hugoledoux/startin_python"
-# repository="https://github.com/hugoledoux/startin_python"
+homepage="https://github.com/hugoledoux/simplaz"
+repository="https://github.com/hugoledoux/simplaz"
 # documentation="https://github.com/hugoledoux/startin_python"
-description = "A super simple Python package to read LAZ (and LAS)"
+description = "A simple Python package to read LAZ files (LAS too)."
 edition = "2018"
 
 

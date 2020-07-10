@@ -1,7 +1,7 @@
 from setuptools import setup
 import toml
 
-with open("README.rst", "r") as fh:
+with open("README.md", "r") as fh:
     long_description = fh.read()
 
 with open("Cargo.toml") as fp:
@@ -16,8 +16,8 @@ setup(
     version=version,
     description=description,
     long_description=long_description,
-    long_description_content_type="text/x-rst",
-    url='https://github.com/hugoledoux/startin_python',
+    long_description_content_type="text/x-md",
+    url='https://github.com/hugoledoux/simplaz',
     author='Hugo Ledoux',
     author_email='h.ledoux@tudelft.nl',
     classifiers=[
@@ -29,7 +29,7 @@ setup(
         "Operating System :: POSIX",
         "Operating System :: MacOS :: MacOS X",
     ],
-    packages=["startin"],
+    packages=["simplaz"],
     python_requires='>=3.6',
 )
 

@@ -84,7 +84,25 @@ struct LazDataset {
 
 #[pymethods]
 impl LazDataset {
-    /// this is my header, yo
+    ///  0 => CreatedNeverClassified
+    ///  1 => Unclassified
+    ///  2 => Ground
+    ///  3 => LowVegetation
+    ///  4 => MediumVegetation
+    ///  5 => HighVegetation
+    ///  6 => Building
+    ///  7 => LowPoint
+    ///  8 => ModelKeyPoint
+    ///  9 => Water
+    /// 10 => Rail
+    /// 11 => RoadSurface
+    /// 12 => Error::OverlapClassification
+    /// 13 => WireGuard
+    /// 14 => WireConductor
+    /// 15 => TransmissionTower
+    /// 16 => WireStructureConnector
+    /// 17 => BridgeDeck
+    /// 18 => HighNoise
     #[getter]
     fn header(&self) -> PyResult<LazHeader> {
         let strv = format!(
@@ -117,6 +135,34 @@ impl LazDataset {
             ],
         };
         Ok(h)
+    }
+    fn all_points(&mut self) -> PyResult<Vec<LazPoint>> {
+        let mut ls: Vec<LazPoint> = Vec::new();
+        for each in self.r.points() {
+            let p = each.unwrap();
+            let p2 = LazPoint {
+                x: p.x,
+                y: p.y,
+                z: p.z,
+                intensity: p.intensity,
+                return_number: p.return_number,
+                number_of_returns: p.number_of_returns,
+                // scan_direction: p.scan_direction,
+                is_edge_of_flight_line: p.is_edge_of_flight_line,
+                classification: u8::from(p.classification),
+                is_synthetic: p.is_synthetic,
+                is_key_point: p.is_key_point,
+                is_withheld: p.is_withheld,
+                is_overlap: p.is_overlap,
+                scanner_channel: p.scanner_channel,
+                scan_angle: p.scan_angle,
+                user_data: p.user_data,
+                point_source_id: p.point_source_id,
+            };
+            ls.push(p2);
+        }
+        // let _re = self.r.seek(0); TODO how to reset to start the iterator?
+        Ok(ls)
     }
 }
 
