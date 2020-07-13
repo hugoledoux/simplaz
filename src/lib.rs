@@ -79,20 +79,50 @@ pub struct LazPoint {
     #[pyo3(get)]
     gps_time: Option<f64>,
     //---------- point_format: 2
-    // #[pyo3(get)]
-    // scanner_channel: u8,
+    #[pyo3(get)]
+    scanner_channel: Option<u8>,
     #[pyo3(get)]
     color: Option<(u16, u16, u16)>,
+    #[pyo3(get)]
+    waveform: Option<LazWaveform>,
+    #[pyo3(get)]
+    nir: Option<u16>,
 }
 
 #[pyproto]
 impl PyObjectProtocol for LazPoint {
     fn __str__(&self) -> PyResult<String> {
-        Ok(format!("({}, {}, {})", self.x, self.y, self.z))
+        Ok(format!(
+            "({}, {}, {}) | classification: {} | intensity: {}",
+            self.x, self.y, self.z, self.classification, self.intensity
+        ))
     }
     fn __repr__(&self) -> PyResult<String> {
-        Ok(format!("({}, {}, {})", self.x, self.y, self.z))
+        Ok(format!(
+            "({}, {}, {}) | classification: {} | intensity: {}",
+            self.x, self.y, self.z, self.classification, self.intensity
+        ))
     }
+}
+
+/// A LAZ/LAS point
+#[pyclass(unsendable)]
+#[derive(Clone)]
+pub struct LazWaveform {
+    #[pyo3(get)]
+    wave_packet_descriptor_index: u8,
+    #[pyo3(get)]
+    byte_offset_to_waveform_data: u64,
+    #[pyo3(get)]
+    waveform_packet_size_in_bytes: u32,
+    #[pyo3(get)]
+    return_point_waveform_location: f32,
+    #[pyo3(get)]
+    x_t: f32,
+    #[pyo3(get)]
+    y_t: f32,
+    #[pyo3(get)]
+    z_t: f32,
 }
 
 #[pyclass(unsendable)]
@@ -289,6 +319,7 @@ fn make_lazpoint(p: &las::point::Point) -> LazPoint {
         is_overlap: p.is_overlap,
         // scanner_channel: p.scanner_channel,
         gps_time: p.gps_time,
+        scanner_channel: Some(p.scanner_channel),
         color: if p.color.is_some() {
             Some((
                 p.color.unwrap().red,
@@ -298,5 +329,19 @@ fn make_lazpoint(p: &las::point::Point) -> LazPoint {
         } else {
             None
         },
+        waveform: if p.waveform.is_some() {
+            Some(LazWaveform {
+                wave_packet_descriptor_index: p.waveform.unwrap().wave_packet_descriptor_index,
+                byte_offset_to_waveform_data: p.waveform.unwrap().byte_offset_to_waveform_data,
+                waveform_packet_size_in_bytes: p.waveform.unwrap().waveform_packet_size_in_bytes,
+                return_point_waveform_location: p.waveform.unwrap().return_point_waveform_location,
+                x_t: p.waveform.unwrap().x_t,
+                y_t: p.waveform.unwrap().y_t,
+                z_t: p.waveform.unwrap().z_t,
+            })
+        } else {
+            None
+        },
+        nir: p.nir,
     }
 }
