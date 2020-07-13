@@ -12,6 +12,7 @@ edition = "2018"
 
 [dependencies]
 las = { version = "0.7.1", features = ["laz"] }
+chrono = "0.4"
 
 
 [dependencies.pyo3]
