@@ -64,4 +64,4 @@ jobs:
         pip install maturin
     - name: Do the work mate
       run: |
-        maturin publish -u hledoux -p ${{ secrets.PASSWORD_PYPI }}
+        maturin publish -i python -u hledoux -p ${{ secrets.PASSWORD_PYPI }}
