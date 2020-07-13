@@ -8,7 +8,7 @@ simplaz
 A simple Python package to read LAZ files (LAS too).
 Basically it's a wrapper around [Rust las](https://docs.rs/las) and it exposes the most useful methods.
 
-Only reading at this moment, writing is for later.
+Only reading at this moment; writing is for later.
 
 
 Installation
@@ -50,7 +50,28 @@ print("Total ground points: {}".format(count_ground))
 ```
 
 
+What is supported and what not?
+===============================
+
+Most of [LAS v1.4](https://www.asprs.org/wp-content/uploads/2010/12/LAS_1_4_r13.pdf) is supported, except:
 
 
+LAS classes
+===========
 
-
+| Classification | description                   | 
+| -------------- | ----------------------------- |
+|  0             | Created, never classified     |
+|  1             | Unclassfied                   |
+|  2             | Ground                        |
+|  3             | Low Vegetation                |
+|  4             | Medium Vegetation             |
+|  5             | High Vegetation               |
+|  6             | Building                      |
+|  7             | Low Point (noise)             |
+|  8             | Model Key-point (mass point)  |
+|  9             | Water                         |
+| 10             | Reserved for ASPRS definition |
+| 11             | Reserved for ASPRS definition |
+| 12             | Overlap Points                |
+| 13-31          | Reserved for ASPRS definition |
