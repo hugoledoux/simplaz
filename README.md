@@ -68,6 +68,9 @@ What is supported and what not?
 
 Most of [LAS v1.4](https://www.asprs.org/wp-content/uploads/2010/12/LAS_1_4_r13.pdf) is supported, except:
 
+ - v1.4 support for extra bits after each point
+ 
+
 
 LAS classes
 ===========
