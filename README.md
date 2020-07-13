@@ -34,19 +34,32 @@ Example
 
 ```python
 import simplaz
+import numpy as np
 
-ds = simplaz.read_file("/home/elvis/myfile.laz")
+ds = simplaz.read_file("/Users/hugo/data/ahn3/crop.laz")
 
 header = ds.header
 print("LAS v{}".format(header.version))
 print("Point count: {}".format(header.number_of_points))
 
-#-- iterate over all the points
-count_ground = 0
-for point in ds:
-    if point.classification == 2:
-        count_ground += 1
-print("Total ground points: {}".format(count_ground))
+#-- using numpy functions
+#-- define a specific numpy type
+mypoint = np.dtype([('x','float64'), 
+                    ('y', 'float64'), 
+                    ('z', 'float64'), 
+                    ('intensity', 'int16')]
+                    ) 
+pts = np.zeros((ds.header.number_of_points,), dtype=mypoint)
+
+#-- iterate over all the points and store in numpy array only 
+#-- the ground point (classification=2)
+for (i, p) in enumerate(ds):
+    if p.classification == 2:
+        pts[i][0] = p.x
+        pts[i][1] = p.y
+        pts[i][2] = p.z
+        pts[i][3] = p.classification
+print (len(pts))
 ```
 
 
@@ -75,3 +88,9 @@ LAS classes
 | 11             | Reserved for ASPRS definition |
 | 12             | Overlap Points                |
 | 13-31          | Reserved for ASPRS definition |
+
+
+LAS Point format
+================
+
+This is well explained [on this page](https://pylas.readthedocs.io/en/latest/intro.html#point-records).
