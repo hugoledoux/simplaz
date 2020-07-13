@@ -53,20 +53,20 @@ pub struct LazPoint {
     #[pyo3(get)]
     return_number: u8,
     #[pyo3(get)]
+    scan_direction_flag: bool,
+    #[pyo3(get)]
     number_of_returns: u8,
     #[pyo3(get)]
     edge_of_flight_line: bool,
     #[pyo3(get)]
     classification: u8,
     #[pyo3(get)]
-    scan_direction_flag: bool,
-    #[pyo3(get)]
     scan_angle_rank: f32,
     #[pyo3(get)]
     user_data: u8,
     #[pyo3(get)]
     point_source_id: u16,
-    //----------
+    //-- Classification Bit Field Encoding
     #[pyo3(get)]
     is_synthetic: bool,
     #[pyo3(get)]
@@ -75,10 +75,14 @@ pub struct LazPoint {
     is_withheld: bool,
     #[pyo3(get)]
     is_overlap: bool,
+    //---------- point_format: 1
     #[pyo3(get)]
-    scanner_channel: u8,
+    gps_time: Option<f64>,
+    //---------- point_format: 2
     // #[pyo3(get)]
-    // color: (u16, u16, u16),
+    // scanner_channel: u8,
+    #[pyo3(get)]
+    color: Option<(u16, u16, u16)>,
 }
 
 #[pyproto]
@@ -267,7 +271,6 @@ fn make_lazpoint(p: &las::point::Point) -> LazPoint {
         y: p.y,
         z: p.z,
         intensity: p.intensity,
-        // color: (p.color.red, p.color.green, p.color.blue),
         return_number: p.return_number,
         number_of_returns: p.number_of_returns,
         scan_direction_flag: if p.scan_direction == las::point::ScanDirection::LeftToRight {
@@ -277,13 +280,23 @@ fn make_lazpoint(p: &las::point::Point) -> LazPoint {
         },
         edge_of_flight_line: p.is_edge_of_flight_line,
         classification: u8::from(p.classification),
-        is_synthetic: p.is_synthetic,
-        is_key_point: p.is_key_point,
-        scanner_channel: p.scanner_channel,
         scan_angle_rank: p.scan_angle,
         user_data: p.user_data,
         point_source_id: p.point_source_id,
+        is_synthetic: p.is_synthetic,
+        is_key_point: p.is_key_point,
         is_withheld: p.is_withheld,
         is_overlap: p.is_overlap,
+        // scanner_channel: p.scanner_channel,
+        gps_time: p.gps_time,
+        color: if p.color.is_some() {
+            Some((
+                p.color.unwrap().red,
+                p.color.unwrap().green,
+                p.color.unwrap().blue,
+            ))
+        } else {
+            None
+        },
     }
 }
