@@ -5,8 +5,10 @@
 simplaz
 =======
 
-A simple Python package to read LAZ files (LAS too).
+A Python package to read LAZ files (LAS too).
 Basically it's a wrapper around [Rust las](https://docs.rs/las) and it exposes the most useful methods.
+
+It doesn't read in memory the whole file, so you can just iterate over each point sequentially without worrying about your RAM comsumption.
 
 Only reading at this moment; writing is for later.
 
