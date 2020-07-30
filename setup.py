@@ -22,12 +22,6 @@ setup(
     author_email='h.ledoux@tudelft.nl',
     classifiers=[
         "License :: OSI Approved :: MIT License",
-        "Development Status :: 3 - Alpha",
-        "Intended Audience :: Developers",
-        "Programming Language :: Python",
-        "Programming Language :: Rust",
-        "Operating System :: POSIX",
-        "Operating System :: MacOS :: MacOS X",
     ],
     packages=["simplaz"],
     python_requires='>=3.6',
