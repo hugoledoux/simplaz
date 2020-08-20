@@ -27,7 +27,7 @@ Development
 
   1. install [Rust](https://www.rust-lang.org/) (v1.39+)
   2. install [maturin](https://github.com/PyO3/maturin) 
-  3. `maturin development`
+  3. `maturin develop`
   4. move to another folder, and `import simplaz` shouldn't return any error
 
 
