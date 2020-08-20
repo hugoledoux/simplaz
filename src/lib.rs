@@ -16,7 +16,7 @@ extern crate las;
 use crate::las::Read;
 
 #[pyclass(unsendable)]
-/// A LAZ/LAS point
+/// A LAZ/LAS point with all its attributes
 pub struct LazPoint {
     //-- point_format: 0
     #[pyo3(get)]
@@ -82,7 +82,6 @@ impl PyObjectProtocol for LazPoint {
     }
 }
 
-/// A LAZ/LAS point
 #[pyclass(unsendable)]
 #[derive(Clone)]
 pub struct LazWaveform {
@@ -142,7 +141,7 @@ impl LazHeader {
 }
 
 #[pyclass(unsendable)]
-/// a LazDataset is bla bla bla
+/// a LazDataset contains a LazHeader and a series of LazPoint
 struct LazDataset {
     r: las::Reader,
 }
@@ -150,6 +149,7 @@ struct LazDataset {
 #[pymethods]
 impl LazDataset {
     #[getter]
+    /// Returns the LazHeader object
     fn header(&self) -> PyResult<LazHeader> {
         let strv = format!(
             "{}.{}",
@@ -198,7 +198,7 @@ impl LazDataset {
         };
         Ok(h)
     }
-    /// returns all points (thus could take a lot of memory)
+    /// Returns all points (thus could take a lot of memory)
     /// using the iterator for LazDataset (`iter(ds)`) avoids this
     fn all_points(&mut self) -> PyResult<Vec<LazPoint>> {
         let mut ls: Vec<LazPoint> = Vec::new();
@@ -210,7 +210,8 @@ impl LazDataset {
         let _re = self.r.seek(0);
         Ok(ls)
     }
-
+    /// To move the iterator to a specific point (0-indexed)
+    /// It should be a value [0, total-1]
     fn seek(&mut self, pos: u64) {
         let _re = self.r.seek(pos);
     }
