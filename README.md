@@ -31,6 +31,12 @@ Development
   4. move to another folder, and `import simplaz` shouldn't return any error
 
 
+Documentation
+=============
+
+The pydoc can be found [here](https://hugoledoux.github.io/simplaz/).
+
+
 Example
 =======
 
