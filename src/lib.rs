@@ -271,9 +271,9 @@ fn read_file(path: String) -> PyResult<LazDataset> {
 
 #[pymodule]
 fn simplaz(_py: Python, m: &PyModule) -> PyResult<()> {
-    // m.add_class::<LazDataset>()?;
-    // m.add_class::<LazPoint>()?;
-    // m.add_class::<LazHeader>()?;
+    m.add_class::<LazDataset>()?;
+    m.add_class::<LazPoint>()?;
+    m.add_class::<LazHeader>()?;
     m.add_wrapped(wrap_pyfunction!(read_file)).unwrap();
     Ok(())
 }
