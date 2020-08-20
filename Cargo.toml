@@ -11,7 +11,8 @@ edition = "2018"
 
 
 [dependencies]
-las = { version = "0.7.1", features = ["laz"] }
+# las = { version = "0.7.1", features = ["laz"] }
+las = { git = "https://github.com/gadomski/las-rs", features = ["laz"] }
 chrono = "0.4"
 
 

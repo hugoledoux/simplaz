@@ -230,8 +230,12 @@ impl LazDataset {
             let p2 = make_lazpoint(&p);
             ls.push(p2);
         }
-        // let _re = self.r.seek(0); TODO how to reset to start the iterator?
+        let _re = self.r.seek(0);
         Ok(ls)
+    }
+
+    fn seek(&mut self, pos: u64) {
+        let _re = self.r.seek(pos);
     }
 }
 
@@ -240,6 +244,7 @@ impl PyIterProtocol for LazDataset {
     fn __next__(mut slf: PyRefMut<Self>) -> IterNextOutput<LazPoint, &'static str> {
         let re = slf.r.read();
         if re.is_none() {
+            let _re = slf.r.seek(0);
             return IterNextOutput::Return("Ended");
         }
         let p = re.unwrap().unwrap();
